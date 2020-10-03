@@ -12,4 +12,17 @@
     <result column="start_date" jdbcType="TIMESTAMP" property="startDate" />
     <result column="end_date" jdbcType="TIMESTAMP" property="endDate" />
   </resultMap>
+
+  <select id="getList" resultType="com.cj.cn.vo.GoodVO">
+    SELECT g.*, mg.stock_count, mg.start_date, mg.end_date, mg.miaosha_price
+        FROM miaosha_goods mg LEFT JOIN goods g
+        ON mg.goods_id = g.id
+  </select>
+
+  <select id="getDetailById" resultType="com.cj.cn.vo.GoodVO">
+    SELECT g.*, mg.stock_count, mg.start_date, mg.end_date, mg.miaosha_price
+        FROM miaosha_goods mg LEFT JOIN goods g
+        ON mg.goods_id = g.id
+        WHERE g.id = #{goodsId}
+  </select>
 </mapper>

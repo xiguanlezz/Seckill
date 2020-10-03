@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 public class LoginDTO {
     @IsMobile(required = true)
     private String mobile;
+
     @NotNull(message = "密码不能为空")
     @Length(min = 32, message = "密码长度不对")
     private String password;
