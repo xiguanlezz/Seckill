@@ -6,7 +6,10 @@ public enum CodeEnum {
     //登录模块(4001XX)
     INCORRECT_MOBILE(400100, "手机号码输入错误"),
     INCORRECT_PWD(400110, "密码输入错误"),
-    BIND_ERROR(400120, "参数绑定异常");
+    BIND_ERROR(400120, "参数绑定异常"),
+    //秒杀模块(4002XX)
+    REPEATE_MIAOSHA(400200, "不能重复秒杀"),
+    MIAOSHA_OVER(400210, "商品已经秒杀完毕");
 
     int code;
     String msg;

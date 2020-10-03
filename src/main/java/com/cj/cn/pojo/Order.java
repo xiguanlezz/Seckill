@@ -11,6 +11,7 @@ import lombok.Setter;
 @Table(name = "order_info")
 public class Order {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**

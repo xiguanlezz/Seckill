@@ -8,9 +8,6 @@ import lombok.Setter;
 @Setter
 @Table(name = "miaosha_order")
 public class MiaoshaOrder {
-    /**
-     * 用户ID
-     */
     @Id
     private Long id;
 
