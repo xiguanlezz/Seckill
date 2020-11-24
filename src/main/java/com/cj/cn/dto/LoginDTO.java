@@ -14,6 +14,6 @@ public class LoginDTO {
     private String mobile;
 
     @NotNull(message = "密码不能为空")
-    @Length(min = 32, message = "密码长度不对")
+    @Length(min = 6, message = "密码长度不对")
     private String password;
 }
