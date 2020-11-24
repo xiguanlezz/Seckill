@@ -1,4 +1,4 @@
-package com.cj.cn.mapper;
+package com.cj.cn.dao;
 
 import com.cj.cn.pojo.Order;
 import tk.mybatis.mapper.common.Mapper;
