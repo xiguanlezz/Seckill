@@ -30,7 +30,7 @@
                          targetProject="src/main/resources"/>
 
         <!--配置XxxMapper.java的存放位置-->
-        <javaClientGenerator targetPackage="com.cj.cn.mapper"
+        <javaClientGenerator targetPackage="com.cj.cn.dao"
                              targetProject="src/main/java"
                              type="XMLMAPPER"/>
 
