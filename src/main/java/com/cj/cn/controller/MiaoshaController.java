@@ -15,7 +15,6 @@ import com.cj.cn.util.JsonUtil;
 import com.cj.cn.util.RedisUtil;
 import com.cj.cn.vo.GoodVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +49,7 @@ public class MiaoshaController {
         log.info("allGoodsStock : {}", allGoodsStockJsonStr);
         for (MiaoshaGood miaoshaGood : allGoodsStock) {
             redisUtil.set(ConstUtil.allGoodsStockKeyPrefix + miaoshaGood.getGoodsId(), miaoshaGood.getStockCount() + "", 1, TimeUnit.DAYS);
+            redisUtil.set(ConstUtil.isGoodsMiaoshaOver + miaoshaGood.getGoodsId(), "false", 1, TimeUnit.DAYS);
         }
     }
 
@@ -117,6 +117,7 @@ public class MiaoshaController {
         //从Redis中预减库存
         String goodStockStr = redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + goodsId);
         if (Long.parseLong(goodStockStr) <= 0) {
+            redisUtil.set(ConstUtil.isGoodsMiaoshaOver + goodsId, "true", 1, TimeUnit.DAYS);
             model.addAttribute("errmsg", CodeEnum.MIAOSHA_OVER.getMsg());
             return "miaosha_fail";
         }
@@ -130,13 +131,19 @@ public class MiaoshaController {
 
         //发送一条消息到RabbitMQ中
         mqSender.sendMiaoshaMessage(new MiaoshaMessage().setGoodsId(goodsId).setMiaoshaUser(user));
+        //Redis减库存
+        redisUtil.decr(ConstUtil.allGoodsStockKeyPrefix + goodsId);
         return "order_detail";
     }
 
     @RequestMapping("result")
-    public ResultResponse getMiaoshaResult(@RequestParam("goodsId") long goodsId) {
-
-        return null;
+    public ResultResponse getMiaoshaResult(@RequestParam("goodsId") long goodsId,
+                                           User user) {
+        if (user == null) {
+            return ResultResponse.error(CodeEnum.NO_LOGIN);
+        }
+        long miaoshaResult = iMiaoshaService.getMiaoshaResult(user.getId(), goodsId);
+        return ResultResponse.ok(miaoshaResult);
     }
 
 }

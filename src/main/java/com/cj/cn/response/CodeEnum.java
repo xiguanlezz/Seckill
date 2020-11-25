@@ -7,10 +7,12 @@ public enum CodeEnum {
     INCORRECT_MOBILE(400100, "手机号码输入错误"),
     INCORRECT_PWD(400110, "密码输入错误"),
     BIND_ERROR(400120, "参数绑定异常"),
-    COOKIE_EXPIRE(400130, "请重新登录"),
+    COOKIE_EXPIRE(400130, "会话已过期, 请重新登录"),
+    NO_LOGIN(400140, "用户未登录"),
     //秒杀模块(4002XX)
     REPEATE_MIAOSHA(400200, "不能重复秒杀"),
-    MIAOSHA_OVER(400210, "商品已经秒杀完毕");
+    MIAOSHA_OVER(400210, "商品已经秒杀完毕"),
+    MIAOSHA_FAIL(400220, "商品秒杀失败");
 
     int code;
     String msg;

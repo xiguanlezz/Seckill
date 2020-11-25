@@ -1,16 +1,22 @@
 package com.cj.cn;
 
+import com.cj.cn.dao.MiaoshaGoodMapper;
+import com.cj.cn.pojo.MiaoshaGood;
 import com.cj.cn.pojo.User;
 import com.cj.cn.rabbitmq.MQSender;
 import com.cj.cn.rabbitmq.MiaoshaMessage;
 import com.cj.cn.service.IGoodService;
 import com.cj.cn.util.ConstUtil;
+import com.cj.cn.util.JsonUtil;
 import com.cj.cn.util.RedisUtil;
 import com.cj.cn.vo.GoodVO;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tk.mybatis.mapper.entity.Example;
+
+import java.util.List;
 
 @SpringBootTest
 class MiaoshaApplicationTests {
@@ -20,6 +26,8 @@ class MiaoshaApplicationTests {
     private IGoodService iGoodService;
     @Autowired
     private MQSender mqSender;
+    @Autowired
+    private MiaoshaGoodMapper miaoshaGoodMapper;
 
     @Test
     void testGoodsListJson() {
@@ -39,4 +47,18 @@ class MiaoshaApplicationTests {
         mqSender.sendMiaoshaMessage(new MiaoshaMessage().setMiaoshaUser(new User().setId(123l)).setGoodsId(1));
     }
 
+    @Test
+    void testMapper() {
+        Example example = new Example(MiaoshaGood.class);
+        example.selectProperties("goodsId", "stockCount");
+        List<MiaoshaGood> miaoshaGoods = miaoshaGoodMapper.selectByExample(example);
+        System.out.println(JsonUtil.objToStr(miaoshaGoods));
+    }
+
+    @Test
+    void testRedisDecr() {
+        System.out.println("pre : " + redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + 1));
+        System.out.println(redisUtil.decr(ConstUtil.allGoodsStockKeyPrefix + 1));
+        System.out.println("after : " + redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + 1));
+    }
 }

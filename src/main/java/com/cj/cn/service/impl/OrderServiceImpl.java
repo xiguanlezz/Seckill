@@ -59,4 +59,12 @@ public class OrderServiceImpl implements IOrderService {
     public Order getOrderById(long orderId) {
         return orderMapper.selectByPrimaryKey(orderId);
     }
+
+    @Override
+    public Order getMiaoshaOrder(long userId, long goodsId) {
+        Example example = new Example(Order.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("userId", userId).andEqualTo("goodsId", goodsId);
+        return orderMapper.selectOneByExample(example);
+    }
 }

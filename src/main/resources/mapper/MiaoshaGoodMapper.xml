@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cj.cn.mapper.MiaoshaGoodMapper">
+<mapper namespace="com.cj.cn.dao.MiaoshaGoodMapper">
   <resultMap id="BaseResultMap" type="com.cj.cn.pojo.MiaoshaGood">
     <!--
       WARNING - @mbg.generated
@@ -25,4 +25,11 @@
         ON mg.goods_id = g.id
         WHERE g.id = #{goodsId}
   </select>
+
+  <update id="reduceCount">
+      UPDATE miaosha_goods set stock_count = stock_count - 1
+      <where>
+          goods_id = #{goodsId} AND stock_count > 0
+      </where>
+  </update>
 </mapper>

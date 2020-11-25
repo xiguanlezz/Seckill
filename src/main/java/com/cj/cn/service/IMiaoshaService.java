@@ -9,4 +9,7 @@ public interface IMiaoshaService {
     MiaoshaGood selectById(Long goodsId);
 
     Order doMiaosha(@Param("userId") Long userId, @Param("good") GoodVO good);
+
+    //0表示秒杀进行中, -1表示秒杀失败, 正数直接就是订单号
+    long getMiaoshaResult(long userId, long goodsId);
 }

@@ -9,4 +9,6 @@ public interface IOrderService {
     Order createOrder(Long userId, GoodVO goodVO);
 
     Order getOrderById(long orderId);
+
+    Order getMiaoshaOrder(long userId, long goodsId);
 }
