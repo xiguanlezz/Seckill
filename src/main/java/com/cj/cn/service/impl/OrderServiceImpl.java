@@ -1,7 +1,7 @@
 package com.cj.cn.service.impl;
 
-import com.cj.cn.mapper.MiaoshaOrderMapper;
-import com.cj.cn.mapper.OrderMapper;
+import com.cj.cn.dao.MiaoshaOrderMapper;
+import com.cj.cn.dao.OrderMapper;
 import com.cj.cn.pojo.MiaoshaOrder;
 import com.cj.cn.pojo.Order;
 import com.cj.cn.service.IOrderService;
