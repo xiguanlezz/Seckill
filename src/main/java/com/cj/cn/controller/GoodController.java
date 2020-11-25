@@ -2,7 +2,11 @@ package com.cj.cn.controller;
 
 import com.cj.cn.pojo.User;
 import com.cj.cn.service.IGoodService;
+import com.cj.cn.util.ConstUtil;
+import com.cj.cn.util.JsonUtil;
+import com.cj.cn.util.RedisUtil;
 import com.cj.cn.vo.GoodVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,27 +14,57 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RequestMapping("/goods")
 @Controller
 public class GoodController {
     @Autowired
     private IGoodService iGoodService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @RequestMapping("/to_list")
-    public String list(Model model, User user) {
-        model.addAttribute("user", user);
-        //查询商品列表
-        List<GoodVO> goodsList = iGoodService.getList();
+    public String list(Model model
+//                       ,User user
+    ) {
+//        model.addAttribute("user", user);
+
+        List<GoodVO> goodsList = null;
+        //加缓存增加并发
+        String goodsListJsonStr = redisUtil.get(ConstUtil.goodsListKey);
+        if (StringUtils.isEmpty(goodsListJsonStr)) {
+            //查询数据库并加入缓存
+            goodsList = iGoodService.getList();
+            goodsListJsonStr = JsonUtil.objToStr(goodsList);
+            redisUtil.set(ConstUtil.goodsListKey, goodsListJsonStr, 30, TimeUnit.MINUTES);
+        } else {
+            //直接从缓存中取数据
+            goodsListJsonStr = redisUtil.get(ConstUtil.goodsListKey);
+            goodsList = JsonUtil.strToObj(goodsListJsonStr, List.class, GoodVO.class);
+        }
         model.addAttribute("goodsList", goodsList);
         return "goods_list";
     }
 
     @RequestMapping("/to_detail/{goodsId}")
-    public String detail(Model model, User user,
+    public String detail(Model model,
+//                         User user,
                          @PathVariable("goodsId") long goodsId) {
-        model.addAttribute("user", user);
-        GoodVO goods = iGoodService.getDetailById(goodsId);
+//        model.addAttribute("user", user);
+
+        GoodVO goods = null;
+        String goodVOJsonStr = "";
+        String goodDetailKey = ConstUtil.goodDetailKeyPrefix + goodsId;     //商品详情在Redis中的key
+        goodVOJsonStr = redisUtil.get(goodDetailKey);
+        if (StringUtils.isEmpty(goodVOJsonStr)) {
+            goods = iGoodService.getDetailById(goodsId);
+            goodVOJsonStr = JsonUtil.objToStr(goods);
+            redisUtil.set(goodDetailKey, goodVOJsonStr, 30, TimeUnit.MINUTES);
+        } else {
+            goodVOJsonStr = redisUtil.get(goodDetailKey);
+            goods = JsonUtil.strToObj(goodVOJsonStr, GoodVO.class);
+        }
         model.addAttribute("goods", goods);
 
         long startAt = goods.getStartDate().getTime();
