@@ -19,5 +19,7 @@ public interface IGoodService {
     /**
      * 减少库存
      */
-    void reduceStock(GoodVO goodVO);
+    int reduceStock(GoodVO goodVO);
+
+    List<MiaoshaGood> getAllGoodsStock();
 }
