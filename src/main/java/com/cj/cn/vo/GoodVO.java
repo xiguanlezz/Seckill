@@ -2,11 +2,13 @@ package com.cj.cn.vo;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+@Accessors(chain = true)
 @Setter
 @Getter
 public class GoodVO {
