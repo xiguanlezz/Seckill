@@ -7,4 +7,6 @@ public interface IOrderService {
     boolean hasMiaoshaOrder(Long userId, Long goodsId);
 
     Order createOrder(Long userId, GoodVO goodVO);
+
+    Order getOrderById(long orderId);
 }

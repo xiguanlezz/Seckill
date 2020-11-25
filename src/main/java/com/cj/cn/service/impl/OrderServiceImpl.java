@@ -54,4 +54,9 @@ public class OrderServiceImpl implements IOrderService {
         miaoshaOrderMapper.insert(miaoshaOrder);
         return order;
     }
+
+    @Override
+    public Order getOrderById(long orderId) {
+        return orderMapper.selectByPrimaryKey(orderId);
+    }
 }

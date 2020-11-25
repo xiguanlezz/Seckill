@@ -1,18 +1,23 @@
 package com.cj.cn.controller;
 
 import com.cj.cn.pojo.User;
+import com.cj.cn.response.ResultResponse;
 import com.cj.cn.service.IGoodService;
 import com.cj.cn.util.ConstUtil;
 import com.cj.cn.util.JsonUtil;
 import com.cj.cn.util.RedisUtil;
 import com.cj.cn.vo.GoodVO;
+import com.cj.cn.vo.GoodsDetailVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -85,5 +90,36 @@ public class GoodController {
         model.addAttribute("miaoshaStatus", miaoshaStatus);
         model.addAttribute("remainSeconds", remainSeconds);
         return "goods_detail";
+    }
+
+    @RequestMapping("/detail/{goodsId}")
+    @ResponseBody
+    public ResultResponse detail(HttpServletRequest request,
+                                 HttpServletResponse response,
+                                 User user,
+                                 @PathVariable("goodsId") long goodsId) {
+
+        GoodVO goods = iGoodService.getDetailById(goodsId);
+        long startAt = goods.getStartDate().getTime();
+        long endAt = goods.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+        int miaoshaStatus = 0;
+        int remainSeconds = 0;
+        if (now < startAt) {
+            miaoshaStatus = 0;
+            remainSeconds = (int) ((startAt - now) / 1000);
+        } else if (now > endAt) {
+            miaoshaStatus = 2;
+            remainSeconds = -1;
+        } else {
+            miaoshaStatus = 1;
+            remainSeconds = 0;
+        }
+        GoodsDetailVO vo = new GoodsDetailVO()
+                .setGoods(goods)
+                .setUser(user)
+                .setMiaoshaStatus(miaoshaStatus)
+                .setRemainSeconds(remainSeconds);
+        return ResultResponse.ok(vo);
     }
 }
