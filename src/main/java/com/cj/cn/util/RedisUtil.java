@@ -18,4 +18,8 @@ public class RedisUtil {
     public String get(String key) {
         return stringRedisTemplate.opsForValue().get(key);
     }
+
+    public Long decr(String key) {
+        return stringRedisTemplate.opsForValue().decrement(key);
+    }
 }
