@@ -1,8 +1,10 @@
 package com.cj.cn.service.impl;
 
-import com.cj.cn.mapper.MiaoshaGoodMapper;
+import com.cj.cn.dao.MiaoshaGoodMapper;
+import com.cj.cn.exception.GlobalException;
 import com.cj.cn.pojo.MiaoshaGood;
 import com.cj.cn.pojo.Order;
+import com.cj.cn.response.CodeEnum;
 import com.cj.cn.service.IGoodService;
 import com.cj.cn.service.IMiaoshaService;
 import com.cj.cn.service.IOrderService;
@@ -30,8 +32,10 @@ public class MiaoshaServiceImpl implements IMiaoshaService {
     @Override
     public Order doMiaosha(Long userId, GoodVO goodVO) {
         //减库存
-        iGoodService.reduceStock(goodVO);
-
+        int count = iGoodService.reduceStock(goodVO);
+        if (count < 1) {
+            throw new GlobalException(CodeEnum.MIAOSHA_OVER);
+        }
         //下订单
         return iOrderService.createOrder(userId, goodVO);
     }
