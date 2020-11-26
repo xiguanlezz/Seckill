@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class MiaoshaApplicationTests {
@@ -60,5 +61,10 @@ class MiaoshaApplicationTests {
         System.out.println("pre : " + redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + 1));
         System.out.println(redisUtil.decr(ConstUtil.allGoodsStockKeyPrefix + 1));
         System.out.println("after : " + redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + 1));
+    }
+
+    @Test
+    void testRedis() {
+        redisUtil.set("miaosha_verfify_code_17367117439_1", "0", 365, TimeUnit.DAYS);
     }
 }

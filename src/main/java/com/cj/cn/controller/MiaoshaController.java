@@ -1,5 +1,6 @@
 package com.cj.cn.controller;
 
+import com.cj.cn.annotation.AccessLimit;
 import com.cj.cn.pojo.MiaoshaGood;
 import com.cj.cn.pojo.Order;
 import com.cj.cn.pojo.User;
@@ -91,10 +92,11 @@ public class MiaoshaController {
     /**
      * 接口秒杀地址是由后端随机生成的
      */
+    @AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
     @ResponseBody
     @RequestMapping("path")
     public ResultResponse getPath(@RequestParam("goodsId") long goodsId,
-                                  @RequestParam("verifyCode") int verifyCode,
+                                  @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode,
                                   User user) {
         if (user == null) {
             return ResultResponse.error(CodeEnum.NO_LOGIN);

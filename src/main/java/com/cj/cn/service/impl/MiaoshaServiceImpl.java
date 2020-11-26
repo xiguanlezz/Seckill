@@ -117,6 +117,9 @@ public class MiaoshaServiceImpl implements IMiaoshaService {
         int result = calculateExpression(verifyCode);
         redisUtil.set(ConstUtil.verifyCodeKeyPrefix + user.getId() + "_" + goodsId, result + "", 5, TimeUnit.SECONDS);
 
+        //仅仅测试限流使用
+//        redisUtil.set(ConstUtil.verifyCodeKeyPrefix + user.getId() + "_" + goodsId, 1 + "", 365, TimeUnit.DAYS);
+
         //输出图片
         return image;
     }

@@ -22,4 +22,8 @@ public class RedisUtil {
     public Long decr(String key) {
         return stringRedisTemplate.opsForValue().decrement(key);
     }
+
+    public Long incr(String key) {
+        return stringRedisTemplate.opsForValue().increment(key);
+    }
 }
