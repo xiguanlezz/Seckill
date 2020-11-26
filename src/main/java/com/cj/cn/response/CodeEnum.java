@@ -9,6 +9,8 @@ public enum CodeEnum {
     BIND_ERROR(400120, "参数绑定异常"),
     COOKIE_EXPIRE(400130, "会话已过期, 请重新登录"),
     NO_LOGIN(400140, "用户未登录"),
+    REQUEST_ILLEGAL(400150, "请求参数异常"),
+    FORMAT_FAIL(400160, "参数格式转化异常"),
     //秒杀模块(4002XX)
     REPEATE_MIAOSHA(400200, "不能重复秒杀"),
     MIAOSHA_OVER(400210, "商品已经秒杀完毕"),

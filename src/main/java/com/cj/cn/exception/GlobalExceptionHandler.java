@@ -8,6 +8,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -27,8 +28,10 @@ public class GlobalExceptionHandler {
             List<ObjectError> errors = ex.getAllErrors();
             String errorMsg = getErrorMsg(errors);
             return ResultResponse.error(CodeEnum.BIND_ERROR.setMsg(errorMsg));
-        } else {
-//            return Result.error(CodeMsg.SERVER_ERROR);
+        } else if (e instanceof MethodArgumentTypeMismatchException) {
+            return ResultResponse.error(CodeEnum.REQUEST_ILLEGAL);
+        } else if(e instanceof NumberFormatException) {
+            return ResultResponse.error(CodeEnum.FORMAT_FAIL);
         }
         return null;
     }

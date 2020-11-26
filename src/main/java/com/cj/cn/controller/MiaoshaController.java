@@ -18,11 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +57,88 @@ public class MiaoshaController {
             redisUtil.set(ConstUtil.allGoodsStockKeyPrefix + miaoshaGood.getGoodsId(), miaoshaGood.getStockCount() + "", 1, TimeUnit.DAYS);
             redisUtil.set(ConstUtil.isGoodsMiaoshaOver + miaoshaGood.getGoodsId(), "false", 1, TimeUnit.DAYS);
         }
+    }
+
+    /**
+     * 生成验证码的接口
+     */
+    @RequestMapping("verifyCode")
+    public ResultResponse generateVerifyCode(@RequestParam("goodsId") long goodsId,
+                                             HttpServletResponse response,
+                                             User user) {
+        if (user == null) {
+            return ResultResponse.error(CodeEnum.NO_LOGIN);
+        }
+        BufferedImage image = iMiaoshaService.createVerifyCode(user, goodsId);
+        OutputStream out = null;
+        try {
+            out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResultResponse.error(CodeEnum.MIAOSHA_FAIL);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 接口秒杀地址是由后端随机生成的
+     */
+    @ResponseBody
+    @RequestMapping("path")
+    public ResultResponse getPath(@RequestParam("goodsId") long goodsId,
+                                  @RequestParam("verifyCode") int verifyCode,
+                                  User user) {
+        if (user == null) {
+            return ResultResponse.error(CodeEnum.NO_LOGIN);
+        }
+        if (!iMiaoshaService.checkVerifyCode(user.getId(), goodsId, verifyCode)) {
+            return ResultResponse.error(CodeEnum.REQUEST_ILLEGAL);
+        }
+        return ResultResponse.ok(iMiaoshaService.createMiaoshaPath(user, goodsId));
+    }
+
+    @ResponseBody
+    @RequestMapping("{path}/do_miaosha")
+    public ResultResponse miaosha(@RequestParam("goodsId") long goodsId,
+                                  @PathVariable("path") String path,
+                                  User user) {
+        if (user == null) {
+            return ResultResponse.error(CodeEnum.NO_LOGIN);
+        }
+
+        //校验秒杀地址
+        String p = redisUtil.get(ConstUtil.miaoShaPathKeyPrefix + user.getId() + "_" + goodsId);
+        if (!path.equals(p)) {
+            return ResultResponse.error(CodeEnum.REQUEST_ILLEGAL);
+        }
+
+        Long userId = user.getId();
+        //从Redis中预减库存
+        String goodStockStr = redisUtil.get(ConstUtil.allGoodsStockKeyPrefix + goodsId);
+        if (Long.parseLong(goodStockStr) <= 0) {
+            redisUtil.set(ConstUtil.isGoodsMiaoshaOver + goodsId, "true", 1, TimeUnit.DAYS);
+            return ResultResponse.error(CodeEnum.MIAOSHA_OVER);
+        }
+
+        //判断是否已经秒杀到了
+        boolean flag = iOrderService.hasMiaoshaOrder(userId, goodsId);
+        if (flag) {
+            return ResultResponse.error(CodeEnum.REPEATE_MIAOSHA);
+        }
+
+        //发送一条消息到RabbitMQ中
+        mqSender.sendMiaoshaMessage(new MiaoshaMessage().setGoodsId(goodsId).setMiaoshaUser(user));
+        //Redis减库存
+        redisUtil.decr(ConstUtil.allGoodsStockKeyPrefix + goodsId);
+        return ResultResponse.ok(0);
     }
 
     /**
@@ -136,6 +224,7 @@ public class MiaoshaController {
         return "order_detail";
     }
 
+    @ResponseBody
     @RequestMapping("result")
     public ResultResponse getMiaoshaResult(@RequestParam("goodsId") long goodsId,
                                            User user) {

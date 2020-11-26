@@ -27,8 +27,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     public boolean supportsParameter(MethodParameter parameter) {
         //表示SpringMVC请求方法中的参数为User类的时候调用resolveArgument方法
         Class<?> clazz = parameter.getParameterType();
-//        return clazz == User.class;
-        return false;
+        return clazz == User.class;
     }
 
     @Override

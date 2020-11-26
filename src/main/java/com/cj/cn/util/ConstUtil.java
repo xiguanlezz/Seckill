@@ -7,4 +7,6 @@ public class ConstUtil {
     public static final String goodDetailKeyPrefix = "miaosha_good_detail_";
     public static final String allGoodsStockKeyPrefix = "miaosha_goods_stock_";
     public static final String isGoodsMiaoshaOver = "miaosha_goods_over_";
+    public static final String verifyCodeKeyPrefix = "miaosha_verfify_code_";
+    public static final String miaoShaPathKeyPrefix = "miaosha_path_";
 }

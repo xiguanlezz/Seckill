@@ -42,7 +42,7 @@ public class GoodController {
             //查询数据库并加入缓存
             goodsList = iGoodService.getList();
             goodsListJsonStr = JsonUtil.objToStr(goodsList);
-            redisUtil.set(ConstUtil.goodsListKey, goodsListJsonStr, 30, TimeUnit.MINUTES);
+            redisUtil.set(ConstUtil.goodsListKey, goodsListJsonStr, 30, TimeUnit.SECONDS);
         } else {
             //直接从缓存中取数据
             goodsListJsonStr = redisUtil.get(ConstUtil.goodsListKey);
@@ -65,7 +65,7 @@ public class GoodController {
         if (StringUtils.isEmpty(goodVOJsonStr)) {
             goods = iGoodService.getDetailById(goodsId);
             goodVOJsonStr = JsonUtil.objToStr(goods);
-            redisUtil.set(goodDetailKey, goodVOJsonStr, 30, TimeUnit.MINUTES);
+            redisUtil.set(goodDetailKey, goodVOJsonStr, 30, TimeUnit.SECONDS);
         } else {
             goodVOJsonStr = redisUtil.get(goodDetailKey);
             goods = JsonUtil.strToObj(goodVOJsonStr, GoodVO.class);
